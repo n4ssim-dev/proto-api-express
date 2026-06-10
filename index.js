@@ -15,8 +15,6 @@ app.get("/health", (req,res) => {
 // Source - https://stackoverflow.com/a/53783495
 // Posted by Paul, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-06-10, License - CC BY-SA 4.0
-
-
 app.post("/login", (req, res) => {
     let user_mail = req.body.mail
     let user_password = req.body.pass
@@ -61,6 +59,54 @@ app.post("/login", (req, res) => {
                     "mail": user.mail,
                     "role": user.role
                 }
+                }
+            );
+        }
+    );
+})
+
+
+
+app.post("/user", (req, res) => {
+    let { nom, prenom, mail, password, idRole } = req.body;
+
+    if (!nom || !prenom || !mail || !password || !idRole) {
+        return res.status(400).json(
+            {"message": "Champs manquants"}
+        )
+    }
+
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.run(`INSERT INTO users (idUser, nom, prenom, password, mail, idRole) VALUES ((SELECT IFNULL(MAX(idUser), 0) + 1 FROM users), ?, ?, ?, ?, ?)`, [nom, prenom, password, mail, idRole],
+        function (err) {
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                console.log("Fermeture de la connexion.");
+            });
+
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ "message": "Erreur serveur" });
+            }
+
+            return res.status(201).json(
+                {
+                    "message": "Utilisateur créé",
+                    "user": {
+                            "id": this.lastID,
+                            "nom": nom,
+                            "prenom": prenom,
+                            "mail": mail,
+                            "idRole": idRole
+                        }
                 }
             );
         }
