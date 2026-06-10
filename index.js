@@ -1,21 +1,45 @@
 const express = require("express");
+const path = require("path");
+const sqlite3 = require("sqlite3");
 const app = express();
 
 app.use(express.json());
 
-
-const users = [
-    { mail: "Alice@gmail.com", id: 0, pass: "azerty", role: "admin" },
-    { mail: "Bob@gmail.com", id: 1, pass: "qwerty", role: "admin" },
-    { mail: "Charlie@gmail.com", id: 2, pass: "qwertz", role: "admin" },
-    { mail: "admin@cliniqueplus.fr", id: 3, pass: "azerty", role: "admin" },
-]
 
 app.get("/health", (req,res) => {
     return res.status(200).json(
         {"status": "healthy"}
     )
 })
+
+// Source - https://stackoverflow.com/a/53783495
+// Posted by Paul, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-06-10, License - CC BY-SA 4.0
+app.post("/", (req, res) => {
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+    if (err) {
+        console.error(err.message);
+    }
+    console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.get(`SELECT * FROM users WHERE idUser = ?`, [req.body.id], (err, row) => {
+    db.close((err) => {
+        if (err) {
+        console.error(err.message);
+        }
+        console.log("Fermeture de la connexion.");
+    });
+
+    if (err) {
+        console.error(err.message);
+        return res.status(500).json({ "message": "Erreur serveur" });
+    }
+
+    res.status(200).json(row);
+    });
+});
+
 
 app.post("/login", (req,res) => {
     let user_mail = req.body.mail
@@ -33,7 +57,7 @@ app.post("/login", (req,res) => {
         )
     } 
     
-    else if (user_password == user.pass && user_email == user.email) {
+    else {
         return res.status(200).json(
             {
             "message": "Connexion réussie",
