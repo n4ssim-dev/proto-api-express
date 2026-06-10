@@ -49,6 +49,33 @@ Body JSON :
 }
 ```
 
+## POST /addrdv
+Création d'un rendez-vous.
+
+Body JSON :
+```json
+{
+  "date_rdv": "2026-06-10 11:30:00",
+  "idService":"2",
+  "idPatient": "5",
+  "idMedecin": "4",
+  "raison_rdv": "infection"
+}
+```
+
+## POST /addpatient
+Création d'un patient.
+
+Body JSON :
+```json
+{
+  "mail": "patient@gmail.com",
+  "nss":"2980613456123",
+  "nom": "Perry",
+  "prenom": "Katie"
+}
+```
+
 ## GET /rdv
 Liste les rendez-vous d'une date donnée.
 
@@ -58,6 +85,23 @@ Body JSON :
   "date": "2025-07-15"
 }
 ```
+
+## GET /patientId
+Liste un patient par ID.
+
+Body JSON :
+```json
+{
+  "id": 2
+}
+```
+
+## GET /patients
+Liste tous les patients.
+
+## GET /allrdv
+Liste tous les rendez-vous.
+
 
 ## GET /medecin
 Récupère un médecin par son id.
