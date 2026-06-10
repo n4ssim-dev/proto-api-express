@@ -15,8 +15,6 @@ app.get("/health", (req,res) => {
 // Source - https://stackoverflow.com/a/53783495
 // Posted by Paul, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-06-10, License - CC BY-SA 4.0
-
-
 app.post("/login", (req, res) => {
     let user_mail = req.body.mail
     let user_password = req.body.pass
@@ -258,6 +256,165 @@ app.post("/addrdv", (req, res) => {
         }
     );
 })
+
+app.post("/user", (req, res) => {
+    let { nom, prenom, mail, password, idRole } = req.body;
+
+    if (!nom || !prenom || !mail || !password || !idRole) {
+        return res.status(400).json(
+            {"message": "Champs manquants"}
+        )
+    }
+
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.run(`INSERT INTO users (idUser, nom, prenom, password, mail, idRole) VALUES ((SELECT IFNULL(MAX(idUser), 0) + 1 FROM users), ?, ?, ?, ?, ?)`, [nom, prenom, password, mail, idRole],
+        function (err) {
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                console.log("Fermeture de la connexion.");
+            });
+
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ "message": "Erreur serveur" });
+            }
+
+            return res.status(201).json(
+                {
+                    "message": "Utilisateur créé",
+                    "user": {
+                            "id": this.lastID,
+                            "nom": nom,
+                            "prenom": prenom,
+                            "mail": mail,
+                            "idRole": idRole
+                        }
+                }
+            );
+        }
+    );
+})
+
+
+
+app.get("/rdv", (req, res) => {
+    let date = req.body.date;
+
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.all(`SELECT idRdv, date_rdv, idService, idPatient, idMedecin, raison_rdv FROM rendez_vous WHERE date(date_rdv) = date(?)`, [date],
+        (err, rows) => {
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                console.log("Fermeture de la connexion.");
+            });
+
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ "message": "Erreur serveur" });
+            }
+
+            return res.status(200).json(
+                {
+                    "rendez_vous": rows
+                }
+            );
+        }
+    );
+})
+
+
+
+app.get("/medecin", (req, res) => {
+    let id = req.body.id;
+
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.get(`SELECT idMedecin, idService, specialite, nom_medecin, prenom_medecin FROM medecin WHERE idMedecin = ?`, [id],
+        (err, medecin) => {
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                console.log("Fermeture de la connexion.");
+            });
+
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ "message": "Erreur serveur" });
+            }
+
+            if (!medecin) {
+                return res.status(404).json(
+                    {"message": "Ce médecin n'existe pas."}
+                )
+            }
+
+            return res.status(200).json(
+                {
+                    "medecin": medecin
+                }
+            );
+        }
+    );
+})
+
+
+
+app.get("/medecin/service", (req, res) => {
+    let idService = req.body.idService;
+
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.all(`SELECT idMedecin, idService, specialite, nom_medecin, prenom_medecin FROM medecin WHERE idService = ?`, [idService],
+        (err, medecins) => {
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                console.log("Fermeture de la connexion.");
+            });
+
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ "message": "Erreur serveur" });
+            }
+
+            return res.status(200).json(
+                {
+                    "medecins": medecins
+                }
+            );
+        }
+    );
+})
+
+
 
 app.listen(3000, () => {
     console.log("Serveur démarré sur le port 3000");
