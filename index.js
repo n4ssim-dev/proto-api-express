@@ -6,13 +6,6 @@ const app = express();
 app.use(express.json());
 
 
-const users = [
-    { mail: "Alice@gmail.com", id: 0, pass: "azerty", role: "admin" },
-    { mail: "Bob@gmail.com", id: 1, pass: "qwerty", role: "admin" },
-    { mail: "Charlie@gmail.com", id: 2, pass: "qwertz", role: "admin" },
-    { mail: "admin@cliniqueplus.fr", id: 3, pass: "azerty", role: "admin" },
-]
-
 app.get("/health", (req,res) => {
     return res.status(200).json(
         {"status": "healthy"}
