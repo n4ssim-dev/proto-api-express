@@ -23,12 +23,12 @@ app.post("/login", (req,res) => {
     let user = users.find(o => o.mail === user_mail);
 
     if (user && user_password != user.pass) {
-        return res.status(400).json(
+        return res.status(401).json(
             {"message": "Identifiants invalides"}
         )
 
     } else if (!user) {
-        return res.status(400).json(
+        return res.status(401).json(
             {"message": "Cette utilisateur n'existe pas."}
         )
     } 
