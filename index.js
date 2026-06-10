@@ -220,7 +220,44 @@ app.post("/addpatient", (req, res) => {
     );
 })
 
+app.post("/addrdv", (req, res) => {
+    let rdv_date_rdv = req.body.date_rdv
+    let rdv_idService = req.body.idService
+    let rdv_idPatient = req.body.idPatient
+    let rdv_idMedecin = req.body.idMedecin
+    let rdv_raison_rdv = req.body.raison_rdv
 
+    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log("Connection avec succès à la base de données SQLite.");
+    });
+
+    db.get(`INSERT INTO rendez_vous (idRdv, date_rdv, idService, idPatient, idMedecin, raison_rdv) VALUES ((SELECT IFNULL(MAX(idRdv), 0) + 1 FROM rendez_vous), ?, ?, ?, ?, ?)`, [rdv_date_rdv, rdv_idService, rdv_idPatient, rdv_idMedecin, rdv_raison_rdv],
+        (err, rdv) => {
+            db.close((err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+                console.log("Fermeture de la connexion.");
+            });
+
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ "message": "Erreur serveur" });
+            }
+
+            
+            return res.status(200).json(
+                {
+                "message": "ajout rendez_vous réussi",
+                
+                }
+            );
+        }
+    );
+})
 
 app.listen(3000, () => {
     console.log("Serveur démarré sur le port 3000");
