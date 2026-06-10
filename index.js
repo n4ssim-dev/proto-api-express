@@ -15,7 +15,6 @@ app.get("/health", (req,res) => {
 // Source - https://stackoverflow.com/a/53783495
 // Posted by Paul, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-06-10, License - CC BY-SA 4.0
-
 app.post("/", (req, res) => {
     let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
     if (err) {
