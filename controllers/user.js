@@ -1,3 +1,8 @@
+// Import des dépendences
+const path = require("path");
+const sqlite3 = require("sqlite3");
+
+
 exports.login = (req,res) => {
     // Source - https://stackoverflow.com/a/53783495
     // Posted by Paul, modified by community. See post 'Timeline' for change history

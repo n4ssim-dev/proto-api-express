@@ -2,6 +2,9 @@ const express = require("express");
 const path = require("path");
 const sqlite3 = require("sqlite3");
 const rdvRoutes = require("./routes/appointments")
+const medecinRoutes = require("./routes/medecins")
+const patientsRoutes = require("./routes/patients")
+const userRoutes = require("./routes/user")
 
 const app = express();
 app.use(express.json());
@@ -15,6 +18,9 @@ app.get("/health", (req,res) => {
 
 //Définition des routes
 app.use('/rdv', rdvRoutes);
+app.use('/medecins', medecinRoutes)
+app.use('/patients', patientsRoutes)
+app.use('/user', userRoutes)
 module.exports = app;
 
 
