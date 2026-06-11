@@ -5,7 +5,7 @@ const app = express();
 
 app.use(express.json());
 
-
+// Ici on lance une requete GET pour vérifier la connexion au serveur
 app.get("/health", (req,res) => {
     return res.status(200).json(
         {"status": "healthy"}
@@ -15,18 +15,22 @@ app.get("/health", (req,res) => {
 // Source - https://stackoverflow.com/a/53783495
 // Posted by Paul, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-06-10, License - CC BY-SA 4.0
-app.post("/login", (req, res) => {
-    let user_mail = req.body.mail
-    let user_password = req.body.pass
 
+//Requete POST pour vérifier la présence des identifiants dans la BDD
+app.post("/login", (req, res) => {
+    let userMail = req.body.mail     //On déclare les variables qui seront récupérées dans le body du testeur d'API
+    let userPassword = req.body.pass
+
+    // Variable qui lance une fonction qui permet de se connecter à la BDD "proto" et de vérifier si la connexion est établie
     let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
         if (err) {
             console.error(err.message);
         }
         console.log("Connection avec succès à la base de données SQLite.");
     });
-
-    db.get(`SELECT users.idUser, users.mail, users.password, roles.nom_role AS role FROM users JOIN roles ON users.idRole = roles.idRole WHERE users.mail = ?`, [user_mail],
+    //Requete GET qui permet de recuperer des valeurs de la BDD correspondant au userMail indiqué dans le body
+    db.get(`SELECT users.idUser, users.mail, users.password, roles.nom_role AS role 
+        FROM users JOIN roles ON users.idRole = roles.idRole WHERE users.mail = ?`, [userMail],
         (err, user) => {
             db.close((err) => {
                 if (err) {
@@ -35,23 +39,23 @@ app.post("/login", (req, res) => {
                 console.log("Fermeture de la connexion.");
             });
 
-            if (err) {
+            if (err) {   //Si erreur
                 console.error(err.message);
                 return res.status(500).json({ "message": "Erreur serveur" });
             }
 
-            if (!user) {
+            if (!user) {  //Si pas de résultat
                 return res.status(401).json(
                     {"message": "Cette utilisateur n'existe pas."}
                 )
             }
 
-            if (user_password != user.password) {
+            if (userPassword != user.password) {  //Si le password indiqué dans le body est différent de celui récupéré dans la BDD
                 return res.status(401).json(
                     {"message": "Identifiants invalides"}
                 )
             }
-            return res.status(200).json(
+            return res.status(200).json(   // Les IF ne sont pas validés, on affiche le résultat
                 {
                 "message": "Connexion réussie",
                 "user": {
@@ -66,7 +70,7 @@ app.post("/login", (req, res) => {
 })
 
 app.get('/patientId', (req, res) => {
-    let patient_id = req.body.id
+    let patientId = req.body.id
     
     let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
         if (err) {
@@ -75,7 +79,7 @@ app.get('/patientId', (req, res) => {
         console.log("Connection avec succès à la base de données SQLite.");
     });
 
-    db.get(`SELECT * FROM patient WHERE patient.idPatient = ?`, [patient_id],
+    db.get(`SELECT * FROM patient WHERE patient.idPatient = ?`, [patientId],
         (err, patient) => {
             db.close((err) => {
                 if (err) {
@@ -181,10 +185,10 @@ app.get('/allrdv', (req, res) => {
 
 
 app.post("/addpatient", (req, res) => {
-    let patient_mail = req.body.mail
-    let patient_nss = req.body.nss
-    let patient_nom = req.body.nom
-    let patient_prenom = req.body.prenom
+    let patienMail = req.body.mail
+    let patientNss = req.body.nss
+    let patientNom = req.body.nom
+    let patientPrenom = req.body.prenom
 
     let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
         if (err) {
@@ -193,7 +197,7 @@ app.post("/addpatient", (req, res) => {
         console.log("Connection avec succès à la base de données SQLite.");
     });
 
-    db.get(`INSERT INTO patient (idPatient, nom, prenom, NSS, mail) VALUES ((SELECT IFNULL(MAX(idPatient), 0) + 1 FROM patient), ?, ?, ?, ?)`, [patient_nom, patient_prenom, patient_nss, patient_mail],
+    db.get(`INSERT INTO patient (idPatient, nom, prenom, NSS, mail) VALUES ((SELECT IFNULL(MAX(idPatient), 0) + 1 FROM patient), ?, ?, ?, ?)`, [patientNom, patientPrenom, patientNss, patientMail],
         (err, patient) => {
             db.close((err) => {
                 if (err) {
@@ -219,11 +223,11 @@ app.post("/addpatient", (req, res) => {
 })
 
 app.post("/addrdv", (req, res) => {
-    let rdv_date_rdv = req.body.date_rdv
-    let rdv_idService = req.body.idService
-    let rdv_idPatient = req.body.idPatient
-    let rdv_idMedecin = req.body.idMedecin
-    let rdv_raison_rdv = req.body.raison_rdv
+    let rdvDateRdv = req.body.date_rdv
+    let rdvIdService = req.body.idService
+    let rdvIdPatient = req.body.idPatient
+    let rdvIdMedecin = req.body.idMedecin
+    let rdvRaisonRdv = req.body.raison_rdv
 
     let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
         if (err) {
@@ -232,7 +236,7 @@ app.post("/addrdv", (req, res) => {
         console.log("Connection avec succès à la base de données SQLite.");
     });
 
-    db.get(`INSERT INTO rendez_vous (idRdv, date_rdv, idService, idPatient, idMedecin, raison_rdv) VALUES ((SELECT IFNULL(MAX(idRdv), 0) + 1 FROM rendez_vous), ?, ?, ?, ?, ?)`, [rdv_date_rdv, rdv_idService, rdv_idPatient, rdv_idMedecin, rdv_raison_rdv],
+    db.get(`INSERT INTO rendez_vous (idRdv, date_rdv, idService, idPatient, idMedecin, raison_rdv) VALUES ((SELECT IFNULL(MAX(idRdv), 0) + 1 FROM rendez_vous), ?, ?, ?, ?, ?)`, [rdvDateDdv, rdvIdService, rdvIdPatient, rdvIdMedecin, rdvRaisonRdv],
         (err, rdv) => {
             db.close((err) => {
                 if (err) {
