@@ -16,6 +16,11 @@ sqlite3 proto.db < proto_db.sql
 sqlite3 proto.db < populate_db.sql
 ```
 
+Si vous n'avez pas la commande `sqlite3` installée sur votre machine, un script Node équivalent est fourni :
+```bash
+npm run setup-db
+```
+
 # 3. Routes disponibles et comment les tester
 
 | Méthode | Route | Description | Body JSON |
