@@ -7,7 +7,7 @@ const app = express();
 
 app.use(express.json());
 
-
+// Ici on lance une requete GET pour vérifier la connexion au serveur
 app.get("/health", (req,res) => {
     return res.status(200).json(
         {"status": "healthy"}
@@ -16,7 +16,6 @@ app.get("/health", (req,res) => {
 
 //Définition des routes
 app.use('/rdv', rdvRoutes);
-
 module.exports = app;
 
 
