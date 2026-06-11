@@ -4,7 +4,6 @@ const sqlite3 = require("sqlite3");
 const rdvRoutes = require("./routes/appointments")
 
 const app = express();
-
 app.use(express.json());
 
 // Ici on lance une requete GET pour vérifier la connexion au serveur
