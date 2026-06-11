@@ -1,5 +1,6 @@
-const model = require("../models/model")
+const model = require("../models/userModel")
 const findUserByMail = model.findUserByMail
+const addUser = model.addUser
 
 exports.login = async (req,res) => {
     let userMail = req.body.mail
@@ -33,7 +34,7 @@ exports.login = async (req,res) => {
     }
 }
 
-exports.addUser = (req,res) => {
+exports.addUser = async (req,res) => {
     let { nom, prenom, mail, password, idRole } = req.body;
 
     if (!nom || !prenom || !mail || !password || !idRole) {
@@ -42,39 +43,16 @@ exports.addUser = (req,res) => {
         )
     }
 
-    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log("Connection avec succès à la base de données SQLite.");
-    });
+    try {
+        let user = await addUser(nom, prenom, password, mail, idRole)
 
-    db.run(`INSERT INTO users (idUser, nom, prenom, password, mail, idRole) VALUES ((SELECT IFNULL(MAX(idUser), 0) + 1 FROM users), ?, ?, ?, ?, ?)`, [nom, prenom, password, mail, idRole],
-        function (err) {
-            db.close((err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-                console.log("Fermeture de la connexion.");
-            });
-
-            if (err) {
-                console.error(err.message);
-                return res.status(500).json({ "message": "Erreur serveur" });
+        return res.status(201).json(
+            {
+                "message": "Utilisateur créé",
+                "user": user
             }
-
-            return res.status(201).json(
-                {
-                    "message": "Utilisateur créé",
-                    "user": {
-                            "id": this.lastID,
-                            "nom": nom,
-                            "prenom": prenom,
-                            "mail": mail,
-                            "idRole": idRole
-                        }
-                }
-            );
-        }
-    );
+        );
+    } catch (err) {
+        return res.status(500).json({ "message": "Erreur serveur" });
+    }
 }

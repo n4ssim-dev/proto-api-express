@@ -10,19 +10,20 @@ const dossiersRoutes = require("./routes/dossiers")
 const app = express();
 app.use(express.json());
 
-// Ici on lance une requete GET pour vérifier la connexion au serveur
+// Route test
 app.get("/health", (req,res) => {
     return res.status(200).json(
         {"status": "healthy"}
     )
 })
 
-//Définition des routes
+// ROUTES
 app.use('/rdv', rdvRoutes);
 app.use('/medecins', medecinRoutes)
 app.use('/patients', patientsRoutes)
 app.use('/user', userRoutes)
 app.use('/dossiers', dossiersRoutes)
+
 module.exports = app;
 
 
