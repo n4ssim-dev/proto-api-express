@@ -1,31 +1,35 @@
 const model = require("../models/model")
 const findUserByMail = model.findUserByMail
 
-exports.login = (req,res) => {
+exports.login = async (req,res) => {
     let userMail = req.body.mail
     let userPassword = req.body.pass
 
-    let user = findUserByMail(userMail)
+    try {
+        let user = await findUserByMail(userMail)
 
-    if (!user) {
-        return res.status(401).json(
-            {"message": "Cette utilisateur n'existe pas."}
-        )
-    } else if (userPassword != user.password) {
+        if (!user) {
             return res.status(401).json(
-            {"message": "Identifiants invalides"}
-        )
-    } else {
-        return res.status(200).json(
-            {
-            "message": "Connexion réussie",
-            "user": {
-                "id": user.idUser,
-                "mail": user.mail,
-                "role": user.role
-            }
-            }
-        );
+                {"message": "Cette utilisateur n'existe pas."}
+            )
+        } else if (userPassword != user.password) {
+                return res.status(401).json(
+                {"message": "Identifiants invalides"}
+            )
+        } else {
+            return res.status(200).json(
+                {
+                "message": "Connexion réussie",
+                "user": {
+                    "id": user.idUser,
+                    "mail": user.mail,
+                    "role": user.role
+                }
+                }
+            );
+        }
+    } catch (err) {
+        return res.status(500).json({ "message": "Erreur serveur" });
     }
 }
 
