@@ -1,3 +1,8 @@
+// Import des dépendences
+const path = require("path");
+const sqlite3 = require("sqlite3");
+
+
 exports.getMedecinById = (req,res) => {
     let id = req.body.id;
 
