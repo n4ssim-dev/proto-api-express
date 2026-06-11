@@ -36,3 +36,4 @@ npm run setup-db
 | GET | `/rdv/all` | Liste tous les rendez-vous | - |
 | GET | `/medecins/` | Récupère un médecin par son id | `{"id": 1}` |
 | GET | `/medecins/service` | Liste les médecins d'un service donné | `{"idService": 1}` |
+| GET | `/dossiers/` | Liste un dossier en fonction de l'ID d'un patient | `{"id": 2}` |
