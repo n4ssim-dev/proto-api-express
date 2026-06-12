@@ -6,9 +6,12 @@ const medecinRoutes = require("./routes/medecins")
 const patientsRoutes = require("./routes/patients")
 const userRoutes = require("./routes/user")
 const dossiersRoutes = require("./routes/dossiers")
+const dbUtils = require("./utils/db")
 
 const app = express();
 app.use(express.json());
+
+dbUtils.connectDb() //On se connecte a la BDD
 
 // Route test
 app.get("/health", (req,res) => {

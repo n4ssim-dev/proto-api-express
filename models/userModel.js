@@ -5,15 +5,8 @@ exports.findUserByMail = (userMail) => {
         const db = dbUtils.connectDb()
         db.get(`SELECT users.idUser, users.mail, users.password, roles.nom_role AS role FROM users JOIN roles ON users.idRole = roles.idRole WHERE users.mail = ?`, [userMail],
             (err, user) => {
-                db.close((closeErr) => {
-                    if (closeErr) {
-                        console.error(closeErr.message);
-                    }
-                    console.log("Fermeture de la connexion.");
-                });
-
+                               
                 if (err) {
-                    console.error(err.message);
                     return reject(err);
                 }
 
@@ -31,17 +24,11 @@ exports.addUser = (nom, prenom, password, mail, idRole) => {
             [nom, prenom, password, mail, idRole],
 
             function (err) {
-                db.close((closeErr) => {
-                    if (closeErr) {
-                        console.error(closeErr.message);
-                    }
-                    console.log("Fermeture de la connexion.");
-                });
-
+                
                 if (err) {
-                    console.error(err.message);
                     return reject(err);
                 }
+
 
                 resolve({
                     "id": this.lastID,
@@ -64,8 +51,7 @@ exports.deleteUserById = (id) => {
             `DELETE FROM users WHERE idUser = ?`,
             [id],
             function (err) {
-                db.close();
-
+                
                 if (err) {
                     return reject(err);
                 }
@@ -75,7 +61,5 @@ exports.deleteUserById = (id) => {
             }
         );
         
-    });
-    db.close();
-    console.log("Fermeture de la connexion.");
+    });  
 };
