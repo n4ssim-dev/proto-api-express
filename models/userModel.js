@@ -54,3 +54,28 @@ exports.addUser = (nom, prenom, password, mail, idRole) => {
         );
     })
 }
+
+
+exports.deleteUserById = (id) => {
+    return new Promise((resolve, reject) => {
+        const db = dbUtils.connectDb();
+
+        db.run(
+            `DELETE FROM users WHERE idUser = ?`,
+            [id],
+            function (err) {
+                db.close();
+
+                if (err) {
+                    return reject(err);
+                }
+
+                resolve(this.changes); // 0 si aucun user supprimé, 1 si supprimé
+                
+            }
+        );
+        
+    });
+    db.close();
+    console.log("Fermeture de la connexion.");
+};
