@@ -1,108 +1,95 @@
 // Import des dépendences
 const path = require("path");
 const sqlite3 = require("sqlite3");
+const appointmentsModel = require("../models/appointmentsModel")
+const getRdvByDatex = appointmentsModel.getRdvByDatex;
+const getAllRdvs = appointmentsModel.getAllRdvs;
+const createRdv = appointmentsModel.createRdv;
 
 
-exports.getRdvByDate = (req,res,next) => {
-    let date = req.body.date;
+exports.getRdvByDate = async (req,res) => {
+    let userDate = req.body.date
 
-    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log("Connection avec succès à la base de données SQLite.");
-    });
+    try{
+        let results = await getRdvByDatex(userDate)
 
-    db.all(`SELECT idRdv, date_rdv, idService, idPatient, idMedecin, raison_rdv FROM rendez_vous WHERE date(date_rdv) = date(?)`, [date],
-        (err, rows) => {
-            db.close((err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-                console.log("Fermeture de la connexion.");
-            });
-
-            if (err) {
-                console.error(err.message);
-                return res.status(500).json({ "message": "Erreur serveur" });
-            }
-
+        if (!results) {
+            return res.status(401).json(
+                {"message": "Il n'y pas de dates correspondante."}
+            )
+        } else {
             return res.status(200).json(
                 {
-                    "rendez_vous": rows
+                "rendez-vous": results
                 }
             );
         }
-    );
-}
+        
 
-exports.addRdv = (req,res,next) => {
+    } catch (err) {
+        return res.status(500).json({ "message": "Erreur serveur" });
+    }
+}
+   
+
+           
+
+
+exports.addRdv = async (req,res) => {
     let rdvDateRdv = req.body.date_rdv
     let rdvIdService = req.body.idService
     let rdvIdPatient = req.body.idPatient
-    let rdvIdMedecine = req.body.idMedecin
+    let rdvIdMedecin = req.body.idMedecin
     let rdvRaisonRdv = req.body.raison_rdv
 
-    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log("Connection avec succès à la base de données SQLite.");
-    });
+    if (!rdvDateRdv || !rdvIdService || !rdvIdPatient || !rdvIdMedecin || !rdvRaisonRdv) {
+        return res.status(400).json(
+        {"message": "Champs manquants"}
+        )
+    }
+        
+    try{
+        let results = await createRdv(rdvDateRdv,rdvIdService,rdvIdPatient,rdvIdMedecin,rdvRaisonRdv)
 
-    db.get(`INSERT INTO rendez_vous (idRdv, date_rdv, idService, idPatient, idMedecin, raison_rdv) VALUES ((SELECT IFNULL(MAX(idRdv), 0) + 1 FROM rendez_vous), ?, ?, ?, ?, ?)`, [rdvDateRdv, rdvIdService, rdvIdPatient, rdvIdMedecine, rdvRaisonRdv],
-        (err, rdv) => {
-            db.close((err) => {
-                if (err) {
-                    console.error(err.message);
+        return res.status(200).json(
+                {
+                "message": "ajout rendez_vous réussi",                
                 }
-                console.log("Fermeture de la connexion.");
-            });
 
-            if (err) {
-                console.error(err.message);
-                return res.status(500).json({ "message": "Erreur serveur" });
-            }
+        )
+              
 
-            
+    } catch (err) {
+        return res.status(500).json({ "message": "Erreur serveur" });
+    }
+}
+   
+    
+
+exports.getAllRdv = async(req,res) => {
+   
+        try{
+            let results = await getAllRdvs()
+
+            if (!results) {
+                return res.status(401).json(
+                    {"message": "Il n'y pas de dates correspondante."}
+                )
+            } else {
             return res.status(200).json(
-                {
-                "message": "ajout rendez_vous réussi",
+                    {
+                    rdv:results
+                    }
                 
-                }
-            );
-        }
-    );
-}
-
-exports.getAllRdv = (req,res) => {
-    let db = new sqlite3.Database(path.resolve("proto.db"), (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log("Connection avec succès à la base de données SQLite.");
-    });
-
-    db.all(`SELECT * FROM rendez_vous `, [],
-        (err, rdv) => {
-            db.close((err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-                console.log("Fermeture de la connexion.");
-            });
-
-            if (err) {
-                console.error(err.message);
-                return res.status(500).json({ "message": "Erreur serveur" });
+                );
             }
-
             
-                return res.status(200).json(
-                {
-                rdv:rdv
-                }
-            );
+
+        } catch (err) {
+            return res.status(500).json({ "message": "Erreur serveur" });
         }
-    );
 }
+   
+            
+                
+        
