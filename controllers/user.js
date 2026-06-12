@@ -2,6 +2,7 @@ const model = require("../models/userModel")
 const findUserByMail = model.findUserByMail
 const addUser = model.addUser
 const deleteUserById = model.deleteUserById
+const modifUser = model.modifUser
 
 exports.login = async (req,res) => {
     let userMail = req.body.mail
@@ -82,3 +83,32 @@ exports.deleteUserById = async (req, res) => {
         });
     }
 };
+
+
+exports.modifUserById = async (req,res) => {
+    let { id, nom, prenom, mail, password, idRole } = req.body;
+ 
+    if (!id || !nom || !prenom || !mail || !password || !idRole) {
+        return res.status(400).json(
+            {"message": "Champs manquants"}
+        )
+    }
+
+    try { 
+        let user = await modifUser(id, nom, prenom, mail, password, idRole);
+
+        return res.status(201).json(
+            {
+                "message": "Utilisateur modifié",
+            }
+        );
+    } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+        message: "Erreur serveur",
+        error: err.message
+    });
+}
+}
+
