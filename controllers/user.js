@@ -1,6 +1,7 @@
 const model = require("../models/userModel")
 const findUserByMail = model.findUserByMail
 const addUser = model.addUser
+const deleteUserById = model.deleteUserById
 
 exports.login = async (req,res) => {
     let userMail = req.body.mail
@@ -56,3 +57,28 @@ exports.addUser = async (req,res) => {
         return res.status(500).json({ "message": "Erreur serveur" });
     }
 }
+
+
+exports.deleteUserById = async (req, res) => {
+    const id = req.body.id;
+
+    try {
+        const deletedCount = await deleteUserById(id);
+
+        if (deletedCount === 0) {
+            return res.status(404).json({
+                message: "Cet utilisateur n'existe pas."
+            });
+        }
+
+        return res.status(200).json({
+            message: "Utilisateur effacé"
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: "Erreur serveur",
+            error: err.message
+        });
+    }
+};
