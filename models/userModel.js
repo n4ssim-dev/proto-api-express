@@ -63,3 +63,26 @@ exports.deleteUserById = (id) => {
         
     });  
 };
+
+exports.modifUser = (id, nom, prenom, mail, password, idRole) => {
+    return new Promise((resolve, reject) => {
+        const db = dbUtils.connectDb()
+
+        db.run(`UPDATE users SET nom = ?, prenom = ?, mail = ?, password = ?, idRole = ?
+            WHERE idUser = ?`, [nom, prenom, mail, password, idRole, id],
+           
+
+            function (err,) {
+                 
+                if (err) { 
+                    return reject(err);
+                    
+                }
+
+
+                resolve(this.changes);
+                 
+            }
+        );
+    })
+}
